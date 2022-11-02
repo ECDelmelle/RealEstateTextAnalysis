@@ -110,9 +110,13 @@ First, because the simplest type of text analysis treats each word as its own va
 
 Next, we get rid of punctuation.
 
+The next long section replaces specific neighborhood names with a generic 'neighborhoodname' placeholder. This is the clunky way we did it initially, constructing the list as we went. Later, this entire cleaning process became much more streamlined. I included a masterclean script that we now use to see a more efficient way of doing these things. Nonetheless, we still had to hire a research assistant to create the csv files with all possible neighborhood names (and other terms)
+
 Then we create a list of terms we want to remove. In this case, they are things that are not particularly discriminating and commonly occur in most listings. They are also quirks we observed during this iterative process - the real list ended up being quite long! In later projects, we built csv files with lists of words and used those rather than this long list!
 
 Finally, we tokenize the words so that each becomes its own observation, remove common stopwords ("the", "and", etc.), numbers, along with the words from our remove word list.
+
+Lastly, we excluded terms that occured fewer than 5 times to try to get rid of noise.
 
 
 ```{r Cleaning the text}
@@ -331,15 +335,11 @@ zillow$cluster3[zillow$cluster4!=3] <- 0
 zillow$cluster3[zillow$cluster4==3] <- 1    
 words$cluster3[words$cluster4!=3] <- 0    
 words$cluster3[words$cluster4==3] <- 1
-zillow$cluster4[zillow$cluster4!=4] <- 0    
-zillow$cluster4[zillow$cluster4==4] <- 1    
-words$cluster4[words$cluster4!=4] <- 0    
-words$cluster4[words$cluster4==4] <- 1
+zillow$cluster4b[zillow$cluster4!=4] <- 0    
+zillow$cluster4b[zillow$cluster4==4] <- 1    
+words$cluster4b[words$cluster4!=4] <- 0    
+words$cluster4b[words$cluster4==4] <- 1
 
-#Remove words that only occurs less than 5 times
-words$nn <- ave(words$word,words$word, FUN=length)
-words$nn <- as.numeric(words$nn)
-words<- words[ -which( words$nn <5), ]
 
 ##split into testing and training dataset
 
@@ -361,7 +361,7 @@ word_rownames <- as.integer(rownames(sparse_words))
 
 data_joined <- data_frame(USER_ID = word_rownames) %>%
   left_join(zillow %>%
-              select(USER_ID, cluster1, cluster2, cluster3, cluster4))
+              select(USER_ID, cluster1, cluster2, cluster3, cluster4b))
 
 
 ```
@@ -375,7 +375,7 @@ We ended up adding to those words with a full list of neighborhood names. I adde
 ```{r run logistic regression}
 #Run model on training data (slow) for clusterX
 
-is_cluster <- data_joined$cluster1 == 1 #<--- change clusterX to whatever cluster you want to plot
+is_cluster <- data_joined$cluster2 == 1 #<--- change clusterX to whatever cluster you want to plot
 
 model <- cv.glmnet(sparse_words, is_cluster,
                    family = "binomial", intercept = TRUE
@@ -442,89 +442,4 @@ comment_classes %>%
 #precision = TP / TP + FP
 #recall = TP / TP + FN
 ```
-
-
-In case of more time, try re-running the analysis but replace neighborhood names with generic placeholder. Here's a start of a list!
-
-```{r neighborhoodname}
-zillow$USER_descr =gsub (pattern = "chantilly", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "villa", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "elizabeth", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "dilworth", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "southend", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "heights", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "plazamidwood", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "plaza", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "midwood", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "noda", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "providence", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "myserspark", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "university", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "plantation", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "arboretum", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "highland", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "myers", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "southpark", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "mallard", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "creek", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "ballantyne", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "grier", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "revolution", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "piper glen", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "beverly woods", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "enderly", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "college downs", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "biddleville", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "seversville", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "shamrock", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "montclaire", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "sardis", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "yorkmount", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "tryon hills", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "westerly hills", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "sugar", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "wendover", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "idlewild", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "mineral springs", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "selwyn", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "hickory", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "sheffield", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "belmont", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "hidden valley", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "newell", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "barclay", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "blakeney", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "carmel", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "cotswold", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "cherry", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "eastover", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "madison", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "quail hollow", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "sedgefield", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "starmount", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "steele creek", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "clanton", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "reid park", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "couldwood", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "enderly", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "lincoln", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "northwood", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "oakview", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "oakdale", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "wesley", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "wilmore", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "windsor", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "oakhurst", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "shannon", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "stonecrest", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "stonehaven", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "foxcroft", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "sherwood", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "lansdown", replacement = "neighborhoodname", zillow$USER_descr)
-zillow$USER_descr =gsub (pattern = "autumnwood", replacement = "neighborhoodname", zillow$USER_descr)
-
-```
-
-
-
 

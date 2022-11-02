@@ -1,6 +1,6 @@
 "0","#Run model on training data (slow) for clusterX"
 "0",""
-"0","is_cluster <- data_joined$cluster1 == 1 #<--- change clusterX to whatever cluster you want to plot"
+"0","is_cluster <- data_joined$cluster2 == 1 #<--- change clusterX to whatever cluster you want to plot"
 "0",""
 "0","model <- cv.glmnet(sparse_words, is_cluster,"
 "0","                   family = ""binomial"", intercept = TRUE"
