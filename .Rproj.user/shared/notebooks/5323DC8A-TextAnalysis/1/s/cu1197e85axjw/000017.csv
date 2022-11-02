@@ -1,0 +1,7 @@
+"0",""
+"0","cltclusters<- cltdata %>%"
+"0","  mutate(cluster4 = k4$cluster) %>%"
+"0","  group_by(cluster4) %>%"
+"0","  summarise_all(""mean"") %>%"
+"0","  select(-c(""name10""))"
+"0","kable(x=cltclusters)%>%kable_classic()"

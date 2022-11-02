@@ -1,0 +1,7 @@
+"0","cltdata <- cltdata %>%"
+"0","  mutate(cluster4 = k4$cluster)"
+"0","cltdata$name10<-as.character(as.numeric(cltdata$name10))"
+"0","joined<-left_join(clt_tracts, cltdata)"
+"2","Joining, by = ""name10"""
+"0","clustermap <- tm_shape(joined)+tm_polygons(col = ""cluster4"", style=""cat"", palette = ""cat"")"
+"0","clustermap"

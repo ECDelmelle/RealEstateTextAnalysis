@@ -1,0 +1,5 @@
+"0","cltdata <- cltdata %>% mutate_if(is.character,as.numeric)%>% dplyr::select( c(""name10"",""Black18"",""White18"",""Hispanic18"",""med_income2018"",""chblack"",""chwhite"",""chincome"",""chhisp"",""minor_pop_pct"")) %>% st_drop_geometry(.)%>%na.omit(.)"
+"2","Warning: NAs introduced by coercion"
+"2","Warning: NAs introduced by coercion"
+"2","Warning: NAs introduced by coercion"
+"2","Warning: NAs introduced by coercion"

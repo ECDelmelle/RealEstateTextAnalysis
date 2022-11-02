@@ -1,0 +1,3 @@
+"0","data_scaled<- scale(cltdata[2:10])"
+"0","distance <- get_dist(data_scaled)"
+"0","fviz_dist(distance, gradient = list(low = ""#00AFBB"", mid = ""white"", high = ""#FC4E07"")) ##Not all that useful, but gives a sense of what we are going to try to cluster in the next steps."
